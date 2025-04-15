@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Task from "@/components/task";
 import { Task as TaskType } from "@/types/task";
 import { createClient } from "@/utils/supabase/client";
@@ -18,26 +17,40 @@ export default function TasksClient(
   const [tasks, setTasks] = useState<TaskType[]>(initialTasks);
 
   async function createTask(title: string) {
-    await supabase.from("tasks").insert({ title, user_id: user!.id });
+    const { data } = await supabase.from("tasks").insert({ title, user_id: user!.id }).select("*");
+    const newTask = data?.[0];
+    if (newTask) {
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+      setTasks((prevTasks) => prevTasks.sort((a, b) => {
+        if (a.done === b.done) return 0;
+        return a.done ? 1 : -1;
+      }));
+    }
   }
 
   const onUpdateTask = async (id: string, updatedFields: Partial<TaskType>) => {
     await (supabase.from("tasks").update(updatedFields).eq("id", id));
     setTasks((prevTasks) => 
-        prevTasks.map((task) => {
-            if (task.id === id) {
-                return { ...task, ...updatedFields };
-            }
-            return task;
-        }));
+      prevTasks.map((task) => {
+        if (task.id === id) {
+          return { ...task, ...updatedFields };
+        }
+        return task;
+      }).sort((a, b) => {
+        if (a.done === b.done) return 0;
+        return a.done ? 1 : -1;
+      }));
   };
 
   async function deleteTask(id: string) {
     await supabase.from("tasks").delete().eq("id", id);
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   }
 
   return (
-    <main className="… justify-between flex flex-col gap-y-4">
+    <main className="… justify-between flex flex-col gap-y-2">
+      {tasks.length === 0 && <p className="text-center text-sm my-5">There are not pending tasks.</p>}
+
       {tasks.map((task) => (
         <Task key={task.id} task={task} updateTask={onUpdateTask} priorities={initialPriotiries} deleteTask={deleteTask} />
       ))}
