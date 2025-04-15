@@ -60,7 +60,7 @@ export default function RootLayout({
                   <a
                     href="https://santiporres.me"
                     target="_blank"
-                    className="font-bold hover:underline"
+                    className="font-bold underline"
                     rel="noreferrer"
                   >
                     Santi Porres

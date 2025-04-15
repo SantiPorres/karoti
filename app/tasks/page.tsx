@@ -5,26 +5,27 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import TasksClient from './TasksClient'
 import { Priority } from "@/types/priority";
+import NewTask from "@/components/new-task";
 
 export default async function Tasks() {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+  const {
+      data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) {
-        return redirect("/sign-in");
-    }
+  if (!user) {
+      return redirect("/sign-in");
+  }
 
-    const priorities: Partial<Priority>[] = (await supabase.from("priorities").select("id,title")).data ?? [];
-    const tasks : TaskType[] = (await supabase.from("tasks").select("*")).data ?? [];
+  const priorities: Partial<Priority>[] = (await supabase.from("priorities").select("id,title")).data ?? [];
+  const tasks : TaskType[] = (await supabase.from("tasks").select("*")).data ?? [];
 
   return (
     <main className="font-[family-name:var(--font-geist-sans)]">
       <div className="max-w-4xl mx-auto flex flex-col gap-y-4">
         <h1 className="w-full font-bold ">Tasks:</h1>
-        <TasksClient initialTasks={tasks} initialPriotiries={priorities} />
+        <TasksClient user={user} initialTasks={tasks} initialPriotiries={priorities} />
       </div>
     </main>
   );
