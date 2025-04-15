@@ -1,9 +1,8 @@
 import Task from "@/components/task";
 import { Task as TaskType } from "@/types/task";
-import { useState } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import TasksClient from '@/app/tasks/tasks-client';
+import TasksClient from '@/app/protected/tasks/tasks-client';
 import { Priority } from "@/types/priority";
 
 export default async function Tasks() {
